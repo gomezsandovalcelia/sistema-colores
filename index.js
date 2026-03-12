@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import express from "express";
 import { leerColores,crearColor,borrarColor,actualizarColor, buscarUsuario } from "./db.js";
 import cors from "cors";
@@ -17,7 +19,7 @@ async function verificar (peticion,respuesta,siguiente) {
 
     try{
 
-        let datos = await jwt.verify(token,process.env.SECRET);
+        let datos = await jwt.verify(token,process.env.SECRET_KEY);
 
         peticion.usuario = datos.id;
 
@@ -40,7 +42,7 @@ servidor.post("/login", async (peticion,respuesta) => {
     let {usuario, password} = peticion.body;
 
     if(!usuario || !usuario.trim() || !password || !password.trim()){
-        return respuesta.status(403);
+        return respuesta.sendStatus(403);
     }
 
     try{
@@ -49,7 +51,7 @@ servidor.post("/login", async (peticion,respuesta) => {
         if(!posibleUsuario){
             return respuesta.status(403);
         }
-        let coincide = await bycrypt.compare(password, posibleUsuario.password);
+        let coincide = await bcrypt.compare(password, posibleUsuario.password);
 
         if(!coincide){
             return respuesta.status(401);
@@ -69,7 +71,7 @@ servidor.use(verificar);
 
 servidor.get("/colores", async (peticion,respuesta) => {
     try{
-        let colores = await leerColores();
+        let colores = await leerColores(peticion.usuario);
 
         respuesta.json(colores);
 
@@ -99,7 +101,7 @@ servidor.post("/nuevo", async (peticion,respuesta) => {
 
 servidor.delete("/borrar/:id", async (peticion,respuesta,siguiente) => {
     try{
-        let cantidad = await borrarColor(peticion.params.id);
+        let cantidad = await borrarColor(peticion.params.id,peticion.usuario);
 
         if(cantidad){
             return respuesta.sendStatus(204);
@@ -117,7 +119,7 @@ servidor.delete("/borrar/:id", async (peticion,respuesta,siguiente) => {
 
 servidor.patch("/actualizar/:id", async (peticion,respuesta,siguiente) => {
     try{
-        let {existe,cambio} = await actualizarColor(peticion.params.id,peticion.body);
+        let {existe,cambio} = await actualizarColor(peticion.params.id,peticion.body,peticion.usuario);
 
         if(cambio){
             return respuesta.sendStatus(204);

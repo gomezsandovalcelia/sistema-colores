@@ -32,7 +32,7 @@ export function buscarUsuario(nombreUsuario){
     });
 }
 
-export function leerColores(){
+export function leerColores(idUsuario){
     return new Promise((ok,ko) => {
         let conexion = null;
         conectar()
@@ -127,7 +127,7 @@ export function actualizarColor(id,objCambios,idUsuario){ //{r,g,b}||{r}||{g}||{
     });
 }
 
-
+/*
 buscarUsuario("celia")
 .then( usuario => console.log("USUARIO ENCONTRADO:", usuario) )
-.catch( e => console.error("ERROR:", e) );
+.catch( e => console.error("ERROR:", e) );*/
