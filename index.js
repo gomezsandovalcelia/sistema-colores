@@ -2,11 +2,31 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
-import { leerColores,crearColor,borrarColor,actualizarColor } from "./db.js";
+import { leerColores,crearColor,borrarColor,actualizarColor, buscarUsuario } from "./db.js";
 import cors from "cors";
 
 import dns from "dns";
 dns.setServers(["1.1.1.1", "1.0.0.1", "8.8.8.8", "8.8.4.4"]);
+
+async function verificar (peticion,respuesta,siguiente) {
+    if(!peticion.headers.authorization){
+        return respuesta.sendStatus(403);
+    }
+
+    let [,token] = peticion.headers.authorization.split(" ");
+
+    try{
+
+        let datos = await jwt.verify(token,process.env.SECRET);
+
+        peticion.usuario = datos.id;
+
+        siguiente();
+
+    }catch(e){
+        respuesta.sendStatus(403);
+    }
+}
 
 const servidor = express();
 
@@ -16,6 +36,37 @@ servidor.use(express.json());
 
 //servidor.use(express.static("./front"));
 
+servidor.post("/login", async (peticion,respuesta) => {
+    let {usuario, clave} = peticion.body;
+
+    if(!usuario || !usuario.trim() || !clave || !clave.trim()){
+        return respuesta.status(403);
+    }
+
+    try{
+        let posibleUsuario = await buscarUsuario(usuario);
+
+        if(!posibleUsuario){
+            return respuesta.status(403);
+        }
+        let coincide = await bycrypt.compare(clave, posibleUsuario.clave);
+
+        if(!coincide){
+            return respuesta.status(401);
+        }
+
+        let token = await jwt.sign({ id : posibleUsuario._id }, process.env.SECRET_KEY);
+
+        respuesta.json({ token });
+        
+    } catch(e){
+        respuesta.status(500);
+        respuesta.json({ error : "error en el servidor" });
+    }
+});
+
+servidor.use(verificar);
+
 servidor.get("/colores", async (peticion,respuesta) => {
     try{
         let colores = await leerColores();
@@ -23,15 +74,18 @@ servidor.get("/colores", async (peticion,respuesta) => {
         respuesta.json(colores);
 
     }catch (e) {
-        console.error("ERROR /colores:", e);
         respuesta.status(500);
-        respuesta.json({ error: "error en el servidor" });
-        }
+
+        respuesta.json({ error : "error en el servidor" });
+    }
 });
 
 servidor.post("/nuevo", async (peticion,respuesta) => {
     try{
-        let id = await crearColor(peticion.body);
+        let {r,g,b} = peticion.body;
+        let usuario = peticion.usuario;
+
+        let id = await crearColor({r,g,b,usuario});
 
         respuesta.json({id});
 

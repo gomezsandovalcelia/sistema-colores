@@ -1,3 +1,5 @@
 .env
 front
 node_modules
+usuarios
+pruebas.rest
