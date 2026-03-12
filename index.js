@@ -37,9 +37,9 @@ servidor.use(express.json());
 //servidor.use(express.static("./front"));
 
 servidor.post("/login", async (peticion,respuesta) => {
-    let {usuario, clave} = peticion.body;
+    let {usuario, password} = peticion.body;
 
-    if(!usuario || !usuario.trim() || !clave || !clave.trim()){
+    if(!usuario || !usuario.trim() || !password || !password.trim()){
         return respuesta.status(403);
     }
 
@@ -49,7 +49,7 @@ servidor.post("/login", async (peticion,respuesta) => {
         if(!posibleUsuario){
             return respuesta.status(403);
         }
-        let coincide = await bycrypt.compare(clave, posibleUsuario.clave);
+        let coincide = await bycrypt.compare(password, posibleUsuario.password);
 
         if(!coincide){
             return respuesta.status(401);
