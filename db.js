@@ -23,7 +23,10 @@ export function buscarUsuario(nombreUsuario){
         .then( usuario => {
             ok(usuario);
         })
-        .catch(() => ko({ error : "error en bbdd" }))
+        .catch((error) => {
+            console.error("ERROR EN buscarUsuario:", error);
+            ko({ error : "error en bbdd" });
+        })
         .finally(() => {
             if(conexion){
                 conexion.close();
@@ -129,5 +132,5 @@ export function actualizarColor(id,objCambios,idUsuario){ //{r,g,b}||{r}||{g}||{
 
 /*
 buscarUsuario("celia")
-.then( usuario => console.log("USUARIO ENCONTRADO:", usuario) )
-.catch( e => console.error("ERROR:", e) );*/
+.then( x => console.log(x) )
+.catch( x => console.log(x) )*/

@@ -46,18 +46,25 @@ servidor.post("/login", async (peticion,respuesta) => {
     }
 
     try{
+        if (!process.env.SECRET) {
+            throw new Error("SECRET_KEY no está definida");
+        }
+
         let posibleUsuario = await buscarUsuario(usuario);
 
+        //console.log("Usuario encontrado:", posibleUsuario);
+
         if(!posibleUsuario){
-            return respuesta.status(403);
+            return respuesta.sendStatus(403);
         }
         let coincide = await bcrypt.compare(password, posibleUsuario.password);
-
+        //console.log("Coincide password:", coincide);
+        
         if(!coincide){
-            return respuesta.status(401);
+            return respuesta.sendStatus(401);
         }
 
-        let token = await jwt.sign({ id : posibleUsuario._id }, process.env.SECRET_KEY);
+        let token = jwt.sign({ id : posibleUsuario._id }, process.env.SECRET);
 
         respuesta.json({ token });
         
