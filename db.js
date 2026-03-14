@@ -58,7 +58,7 @@ export function leerColores(idUsuario){
     });
 }
 
-export function crearColor(objColor){ //{r,g,b}
+export function crearColor(objColor){ //{r,g,b, usuario }
     return new Promise((ok,ko) => {
         let conexion = null;
         conectar()
@@ -132,5 +132,11 @@ export function actualizarColor(id,objCambios,idUsuario){ //{r,g,b}||{r}||{g}||{
 
 /*
 buscarUsuario("celia")
+.then( x => console.log(x) )
+.catch( x => console.log(x) )
+borrarColor("69b5449a9d92be07d20258cb", "69aea5ad70640c9f0e60384f")
+.then( x => console.log(x) )
+.catch( x => console.log(x) )
+actualizarColor("69b5495745ce30a13fb95764", { r : 234}, "69aea5ad70640c9f0e603850"  )
 .then( x => console.log(x) )
 .catch( x => console.log(x) )*/

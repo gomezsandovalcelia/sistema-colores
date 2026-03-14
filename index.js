@@ -19,7 +19,7 @@ async function verificar (peticion,respuesta,siguiente) {
 
     try{
 
-        let datos = await jwt.verify(token,process.env.SECRET_KEY);
+        let datos = await jwt.verify(token,process.env.SECRET);
 
         peticion.usuario = datos.id;
 
@@ -47,7 +47,7 @@ servidor.post("/login", async (peticion,respuesta) => {
 
     try{
         if (!process.env.SECRET) {
-            throw new Error("SECRET_KEY no está definida");
+            throw new Error("SECRET no está definida");
         }
 
         let posibleUsuario = await buscarUsuario(usuario);
